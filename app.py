@@ -1,12 +1,17 @@
 import streamlit as st
 import google.generativeai as genai
 
+# 1. إعداد الصفحة
 st.set_page_config(page_title="RO_MIND AI", page_icon="🤖")
+
+# 2. الربط مع جوجل (تحديث طريقة النداء)
 genai.configure(api_key="AIzaSyDXJr5jU1WQjCg3Nb30sXsZjiQU3l0OD8c")
-model = genai.GenerativeModel('gemini-1.5-flash')
+
+# السطر ده اتعدل عشان يتجنب الخطأ اللي ظهرلك
+model = genai.GenerativeModel('gemini-1.5-flash-latest') 
 
 st.title("🤖 RO_MIND AI")
-st.write("أهلاً بيكي يا دكتورة.. اسألي RO_MIND في أي حاجة!")
+st.write("أهلاً بيكي يا دكتورة.. RO_MIND جاهز لمساعدتك!")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -19,8 +24,13 @@ if prompt := st.chat_input("سؤالك إيه؟"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.write(prompt)
+    
     with st.chat_message("assistant"):
-        response = model.generate_content(f"أنت RO_MIND، مساعد مصري مرح: {prompt}")
-        st.write(response.text)
-        st.session_state.messages.append({"role": "assistant", "content": response.text})
-
+        try:
+            # تعليمات الشخصية المصرية
+            full_prompt = f"أنت RO_MIND، مدرس مصري عبقري ومرح. رد بالعامية المصرية: {prompt}"
+            response = model.generate_content(full_prompt)
+            st.write(response.text)
+            st.session_state.messages.append({"role": "assistant", "content": response.text})
+        except Exception as e:
+            st.error(f"حصلت مشكلة في الربط: {e}")
